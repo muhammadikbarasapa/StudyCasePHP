@@ -2,75 +2,32 @@
 $transaksi = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit']) && $_POST['jumlah'] && $_POST['tipe'] && $_POST['metode_pembayaran'] && $_POST['uang']) {
-    $liter = $_POST['jumlah'];
-    $jenis = $_POST['tipe'];
+    $jumlah = $_POST['jumlah'];
+    $tipe = $_POST['tipe'];
     $uang = $_POST['uang'];
 
-    class Shell
-    {
-        protected $harga;
-        public $jumlah;
-        public $jenis;
-        public $ppn;
+    $harga_per_liter = [
+        'Shell Super' => 15420,
+        'Shell V-Power' => 16130,
+        'Shell V-Power Diesel' => 18310,
+        'Shell V-Power Nitro' => 16510,
+    ];
 
-        public function __construct($harga, $jumlah, $jenis, $ppn = 10)
-        {
-            $this->harga = $harga;
-            $this->jumlah = $jumlah;
-            $this->jenis = $jenis;
-            $this->ppn = $ppn;
-        }
+    $total_harga = $harga_per_liter[$tipe] * $jumlah;
 
-        public function hitungTotal()
-        {
-            return $this->harga * $this->jumlah * (1 + $this->ppn / 100);
-        }
-    }
+    $metode_pembayaran = $_POST['metode_pembayaran'];
 
-    class Beli extends Shell
-    {
-        public function __construct($harga, $jumlah, $jenis)
-        {
-            parent::__construct($harga, $jumlah, $jenis);
-        }
-
-        public function buktiTransaksi($metodePembayaran)
-        {
-            return "<h1>Transaksi</h1>"
-                . "Anda membeli bahan bakar minyak tipe {$this->jenis}<br>"
-                . "Dengan jumlah : {$this->jumlah} Liter<br>"
-                . "Metode Pembayaran : {$metodePembayaran}<br>"
-                . "Total yang harus anda bayar : Rp. " . number_format($this->hitungTotal(), 2) . "<br>";
-        }
-    }
-
-    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['jumlah'], $_POST['tipe'], $_POST['metode_pembayaran'])) {
-        $pilihan = $_POST['tipe'];
-        $jumlah = floatval($_POST['jumlah']);
-        $metodePembayaran = $_POST['metode_pembayaran'];
-
-        $beli = new Beli(
-            ($pilihan === 'Shell Super' ? 15420 :
-                ($pilihan === 'Shell V-Power' ? 16130 :
-                    ($pilihan === 'Shell V-Power Diesel' ? 18310 :
-                        ($pilihan === 'Shell V-Power Nitro' ? 16510 : 0)
-                    )
-                )
-            ),
-            $jumlah,
-            $pilihan
-        );
-
-        $transaksi = $beli->buktiTransaksi($metodePembayaran);
-    }
+    $transaksi = "<h1>Transaksi</h1>";
+    $transaksi .= "<p>Anda membeli bahan bakar minyak tipe $tipe</p>";
+    $transaksi .= "<p>Dengan jumlah : $jumlah Liter</p>";
+    $transaksi .= "<p>Metode Pembayaran : $metode_pembayaran</p>";
+    $transaksi .= "<p>Total yang harus anda bayar : Rp. " . number_format($total_harga, 2) . "</p>";
 }
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bahan Bakar</title>
@@ -142,7 +99,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit']) && $_POST['j
         }
     </style>
 </head>
-
 <body>
     <div class="container">
         <?php echo $transaksi; ?>
@@ -177,5 +133,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit']) && $_POST['j
         </form>
     </div>
 </body>
-
 </html>
