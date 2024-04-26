@@ -34,7 +34,7 @@ $toko = new Toko();
 $komputer = new Komputer();
 
 echo $laptop_baru->beli_laptop();
-echo "<br   >";
+echo "<br>";
 echo $toko->beli_publik();
 
 ?>
