@@ -79,7 +79,7 @@
         .output p {
             margin: 10px 0;
         }
-        
+
         @media only screen and (max-width: 600px) {
             .container {
                 max-width: 90%;
@@ -113,26 +113,55 @@
         </form>
 
         <?php
+
+        class RentalCalculator
+        {
+            private $nama_pelanggan;
+            private $lama_rental;
+            private $jenis_motor;
+            private $diskon;
+            private $harga_per_hari;
+            private $pajak;
+
+            public function __construct($nama_pelanggan, $lama_rental, $jenis_motor)
+            {
+                $this->nama_pelanggan = $nama_pelanggan;
+                $this->lama_rental = $lama_rental;
+                $this->jenis_motor = $jenis_motor;
+                $this->diskon = ($nama_pelanggan == 'ana') ? 0.05 : 0;
+                $this->harga_per_hari = 70000;
+                $this->pajak = 10000;
+            }
+
+            public function calculateTotal()
+            {
+                $total = ($this->lama_rental * $this->harga_per_hari) - ($this->lama_rental * $this->harga_per_hari * $this->diskon) + $this->pajak;
+                return $total;
+            }
+
+            public function displayDetails()
+            {
+                $total = $this->calculateTotal();
+                echo "<div class='output'>";
+                echo "<h2>Detail Rental</h2>";
+                echo "<p><strong>Nama Pelanggan:</strong> " . htmlspecialchars($this->nama_pelanggan) . "</p>";
+                echo "<p><strong>Lama Waktu Rental (per hari):</strong> " . htmlspecialchars($this->lama_rental) . "</p>";
+                echo "<p><strong>Jenis Motor:</strong> " . htmlspecialchars($this->jenis_motor) . "</p>";
+                echo "<p><strong>Total Harga:</strong> Rp. " . number_format($total, 2) . "</p>";
+                echo "</div>";
+            }
+        }
+
         if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $nama_pelanggan = $_POST['nama_pelanggan'];
             $lama_rental = $_POST['lama_rental'];
             $jenis_motor = $_POST['jenis_motor'];
-            $diskon = ($nama_pelanggan == 'ana') ? 0.05 : 0;
-            $harga_per_hari = 70000;
-            $pajak = 10000;
 
-            $total = ($lama_rental * $harga_per_hari) - ($lama_rental * $harga_per_hari * $diskon) + $pajak;
-
-            echo "<div class='output'>";
-            echo "<h2>Detail Rental</h2>";
-            echo "<p><strong>Nama Pelanggan:</strong> $nama_pelanggan</p>";
-            echo "<p><strong>Lama Waktu Rental (per hari):</strong> $lama_rental</p>";
-            echo "<p><strong>Jenis Motor:</strong> $jenis_motor</p>";
-            echo "<p><strong>Total Harga:</strong> Rp. " . number_format($total, 2) . "</p>";
-            echo "</div>";
-            
+            $rental = new RentalCalculator($nama_pelanggan, $lama_rental, $jenis_motor);
+            $rental->displayDetails();
         }
         ?>
+
 
     </div>
 
