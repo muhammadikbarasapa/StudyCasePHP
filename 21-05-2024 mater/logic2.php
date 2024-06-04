@@ -103,8 +103,8 @@
         </form>
 
         <?php
-        $proses = new rentall();
-        $proses->setHarga(70000, 90000, 95000, 100000);
+        $proses = new Rentall();
+        $proses->setHarga(70000, 90000, 90000, 100000);
         if (isset($_POST['submit'])) {
             $proses->member = $_POST['nama'];
             $proses->jenis = $_POST['jenis'];
