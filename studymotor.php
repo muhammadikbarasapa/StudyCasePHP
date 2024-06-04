@@ -114,51 +114,73 @@
 
         <?php
 
-        class RentalCalculator
+        class Data
         {
-            private $nama_pelanggan;
-            private $lama_rental;
-            private $jenis_motor;
-            private $diskon;
-            private $harga_per_hari;
-            private $pajak;
+            public $member;
+            public $jenis;
+            public $waktu;
+            protected $pajak;
+            private $harga = [
+                'Scooter' => 70000,
+                'Nmax' => 90000,
+                'Adv' => 90000,
+                'Beat' => 100000,
+                'Alva Cervo' => 0 // You need to specify the price for this type of motor
+            ];
+            private $listMember = ['ana', 'sam', 'akex', 'ara'];
 
-            public function __construct($nama_pelanggan, $lama_rental, $jenis_motor)
+            function __construct()
             {
-                $this->nama_pelanggan = $nama_pelanggan;
-                $this->lama_rental = $lama_rental;
-                $this->jenis_motor = $jenis_motor;
-                $this->diskon = ($nama_pelanggan == 'ana') ? 0.05 : 0;
-                $this->harga_per_hari = 70000;
                 $this->pajak = 10000;
             }
 
-            public function calculateTotal()
+            public function getMemberStatus()
             {
-                $total = ($this->lama_rental * $this->harga_per_hari) - ($this->lama_rental * $this->harga_per_hari * $this->diskon) + $this->pajak;
-                return $total;
+                return in_array(strtolower($this->member), $this->listMember) ? 'Member' : 'Non Member';
             }
 
-            public function displayDetails()
+            public function getHargaPerHari()
             {
-                $total = $this->calculateTotal();
-                echo "<div class='output'>";
-                echo "<h2>Detail Rental</h2>";
-                echo "<p><strong>Nama Pelanggan:</strong> " . htmlspecialchars($this->nama_pelanggan) . "</p>";
-                echo "<p><strong>Lama Waktu Rental (per hari):</strong> " . htmlspecialchars($this->lama_rental) . "</p>";
-                echo "<p><strong>Jenis Motor:</strong> " . htmlspecialchars($this->jenis_motor) . "</p>";
-                echo "<p><strong>Total Harga:</strong> Rp. " . number_format($total, 2) . "</p>";
-                echo "</div>";
+                return isset($this->harga[$this->jenis]) ? $this->harga[$this->jenis] : 0;
+            }
+        }
+
+        class Rentall extends Data
+        {
+            public function hargaRental()
+            {
+                $harga = $this->getHargaPerHari();
+                $diskon = ($this->getMemberStatus() == "Member") ? 5 : 0;
+                $bayar = ($harga * $this->waktu - ($harga * $diskon / 100)) + $this->pajak;
+                return [$bayar, $diskon];
+            }
+
+            public function pembayaran()
+            {
+                echo "<center>";
+                echo $this->member . " berstatus sebagai " . $this->getMemberStatus() . " mendapatkan diskon sebesar " . $this->hargaRental()[1] . "%";
+                echo "<br/>";
+                echo "Jenis motor yang dirental adalah " . $this->jenis . " selama " . $this->waktu . " hari";
+                echo "<br/>";
+                echo "Harga per harinya: Rp." . number_format($this->getHargaPerHari(), 0, '', '.');
+                echo "<br/>";
+                echo "<br/>";
+                echo "Total yang harus dibayarkan adalah Rp." . number_format($this->hargaRental()[0], 0, ',', '.');
+                echo "</center>";
             }
         }
 
         if ($_SERVER["REQUEST_METHOD"] == "POST") {
-            $nama_pelanggan = $_POST['nama_pelanggan'];
-            $lama_rental = $_POST['lama_rental'];
-            $jenis_motor = $_POST['jenis_motor'];
-
-            $rental = new RentalCalculator($nama_pelanggan, $lama_rental, $jenis_motor);
-            $rental->displayDetails();
+            $proses = new Rentall();
+            $proses->member = $_POST['nama_pelanggan'];
+            $proses->jenis = $_POST['jenis_motor'];
+            $proses->waktu = $_POST['lama_rental'];
+            
+            if (!empty($proses->member) && !empty($proses->jenis) && $proses->waktu > 0) {
+                $proses->pembayaran();
+            } else {
+                echo "Please fill all the fields correctly.";
+            }
         }
         ?>
 

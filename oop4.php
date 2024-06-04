@@ -37,4 +37,4 @@ echo $laptop_baru->beli_laptop();
 echo "<br>";
 echo $toko->beli_publik();
 
-?>
+
